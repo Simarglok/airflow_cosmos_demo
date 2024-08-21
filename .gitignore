@@ -3,4 +3,4 @@ __pycache__/
 /.venv
 /logs
 /plugins
-/dbt
+/dbt/dbt-docs
