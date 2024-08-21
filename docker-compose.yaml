@@ -1,0 +1,108 @@
+version: "2.9.2"
+
+x-common:
+  &common
+  build: 
+      context: .
+      dockerfile: Dockerfile
+  user: "${AIRFLOW_UID}:0"
+  env_file: 
+    - .env
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./dbt/jaffle_shop:/opt/airflow/dbt/jaffle_shop
+    - ./dbt/dbt-docs:/opt/airflow/dbt-docs
+    - ~/.ssh:/root/.ssh
+    - /var/run/docker.sock:/var/run/docker.sock
+  networks:
+      - frontend
+
+x-depends-on:
+  &depends-on
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_started
+    airflow-init:
+      condition: service_completed_successfully
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    env_file: 
+    - .env
+    networks:
+      - frontend
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - frontend
+
+  flower:
+    <<: [*common, *depends-on]
+    container_name: airflow-flower
+    restart: unless-stopped
+    command: celery flower
+    ports:
+      - "5555:5555"
+
+  scheduler:
+    <<: [*common, *depends-on]
+    container_name: airflow-scheduler
+    command:
+      - scheduler
+    restart: unless-stopped
+    ports:
+      - "8793:8793"
+
+  webserver:
+    <<: [*common, *depends-on]
+    container_name: airflow-webserver
+    restart: unless-stopped
+    command:
+      - webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+
+  worker:
+    <<: [*common, *depends-on]
+    container_name: airflow-worker
+    restart: unless-stopped
+    command:
+      - celery
+      - worker
+
+  airflow-init:
+    <<: *common
+    container_name: airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /sources/logs /sources/dags /sources/plugins
+        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+        exec /entrypoint airflow version
+
+networks:
+  frontend:

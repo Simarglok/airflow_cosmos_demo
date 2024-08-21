@@ -1,0 +1,2 @@
+apache-airflow-providers-openlineage==1.9.1
+astronomer-cosmos==1.5.0
