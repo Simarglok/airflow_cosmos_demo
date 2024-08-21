@@ -76,9 +76,9 @@ To run project using Docker Compose, execute following commands:
 
 ## Running DAG's
 
-- First unpause dbt_docs_generator DAG to generate dbt documentation including manifest.json file
+- First unpause **dbt_docs_generator** DAG to generate dbt documentation including manifest.json file
 
-- Second unpause dbt_simple_task_group DAG to run dbt project
+- Second unpause **dbt_simple_task_group** DAG to run dbt project
 
 ## dbt documentation
 
