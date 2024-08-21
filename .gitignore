@@ -1,6 +1,8 @@
 __pycache__/
 .DS_Store
 /.venv
-/logs
 /plugins
 /dbt/dbt-docs
+**/target
+**/logs
+.user.yml

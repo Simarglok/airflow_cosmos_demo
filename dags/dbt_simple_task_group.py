@@ -13,7 +13,7 @@ profile_config = ProfileConfig(
     target_name="dev",
     profile_mapping=PostgresUserPasswordProfileMapping(
         conn_id="airflow_db",
-        profile_args={"schema": "dbt"},
+        profile_args={"schema": "public"},
     ),
 )
 
@@ -62,8 +62,8 @@ def dbt_simple_task_group() -> None:
         ),
         render_config=RenderConfig(
             load_method=LoadMode.DBT_MANIFEST,
-            # select=[f"tag:{tag}"],
-            # exclude=['path:seeds'], #'config.materialized:view'
+            # select=["tag:jaffle_shop"],
+            # exclude=['path:seeds', 'config.materialized:view'],
             test_behavior=TestBehavior.AFTER_ALL,
             dbt_deps=False,
         ),

@@ -80,6 +80,8 @@ To run project using Docker Compose, execute following commands:
 
 - Second unpause **dbt_simple_task_group** DAG to run dbt project
 
+- Also you can try **dbt_simple_bash** to see how it works in old way with BashOperator
+
 ## dbt documentation
 
 dbt Docs will be available in Airflow UI menu: 

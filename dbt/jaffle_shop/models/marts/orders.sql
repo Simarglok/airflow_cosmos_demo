@@ -8,12 +8,6 @@
 
 with
 
-{#
-     DuckDB will see {{ this }} evaluate to `orders` and a CTE called `orders` as being the same
-     so when using DuckDB we append `_set` to any CTEs with the same name as {{ this }} to indicate
-     we're not executing a recursive statement
-#}
-
 orders_set as (
 
     select * from {{ ref('stg_orders') }}
